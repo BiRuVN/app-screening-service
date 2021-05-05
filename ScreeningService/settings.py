@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'ScreeningService.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'screening',
         'USER': 'postgres',
         'PASSWORD': '7762119t',
         'HOST': 'localhost',

@@ -77,7 +77,21 @@ def add_date(request):
 #             movie = serialize(Movie.objects.filter(rating=rating), fields=('name', 'duration', 'rating'))
 #         return JsonResponse({'data' : movie})
 
-# ================== TIMESLOT ========================
+# ================== SCREENING ========================
+# Get SCREENING by DATE
+def get_screening_by_room(request):
+    if request.method == 'GET':
+        room_id = request.GET.get('date_id', None)
+        if room_id is None:
+            return JsonResponse({
+                'message': 'Missing room_id to get screening'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        statement = "\
+            \
+            "
+
+
 # Create SCREENING
 def add_screening(request):
     if request.method == 'POST':
