@@ -43,7 +43,7 @@ def run_sql(statement):
 def get_date(request):
     if request.method == 'GET':
         fields = ['date', 'date_id', 'day']
-        statement = "SELECT date, _id, day FROM screening_app_date ORDER BY date LIMIT 7"
+        statement = "SELECT date, _id, day FROM screening_app_date ORDER BY date DESC LIMIT 7"
 
         all_date = run_sql(statement)
 
@@ -137,6 +137,12 @@ def add_screening(request):
         if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
             return JsonResponse({
                 'message': 'Missing key to create'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        movie = requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(movie_id))
+        if len(movie['data']) == 0:
+            return JsonResponse({
+                'message': 'No available film to add'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
