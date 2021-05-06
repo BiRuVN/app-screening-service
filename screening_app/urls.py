@@ -4,8 +4,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     # path('', ),
-    # path('movie/', get_movie),
-    # path('movie/new', csrf_exempt(add_movie)),
-    # path('movie/del', csrf_exempt(del_movie)),
-    # path('movie/update', csrf_exempt(update_movie)),
+    path('date/', get_date),
+    path('screening/', get_screening_by_date),
+    path('screening/new', csrf_exempt(add_screening)),
+    path('screening/del', csrf_exempt(del_screening)),
+    path('screening/update', csrf_exempt(update_screening)),
 ]

@@ -30,9 +30,11 @@ class Date(models.Model):
 
 class Screening(models.Model):
     _id = models.AutoField(primary_key=True, null=False)
-    id_timeslot = models.ForeignKey(Timeslot, on_delete=models.CASCADE)
-    id_room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    id_date = models.ForeignKey(Date, on_delete=models.CASCADE)
+    timeslot_id = models.ForeignKey(Timeslot, on_delete=models.CASCADE)
+    room_id = models.ForeignKey(Room, on_delete=models.CASCADE)
+    date_id = models.ForeignKey(Date, on_delete=models.CASCADE)
+    movie_id = models.IntegerField()
+    
 
     class Meta:
-        unique_together = ('id_timeslot', 'id_room', 'id_date')
+        unique_together = ('timeslot_id', 'room_id', 'date_id')

@@ -6,6 +6,8 @@ from django.core import serializers
 import rest_framework
 import ast
 import json
+import requests
+from django.db import connection
 
 def serialize(querysetObject, fields=()):
     return ast.literal_eval(serializers.serialize('json', querysetObject, fields=fields))
@@ -38,17 +40,17 @@ def run_sql(statement):
         
 # ================== DATE ========================
 # Get DATE
-# def get_date(request):
-#     if request.method == 'GET':
-#         if _id is None and rating is None:
-#             all_movie = serialize(Movie.objects.all(), fields=('name', 'duration', 'rating'))
-#             return JsonResponse({'data' : [x['fields'] for x in all_movie]})
+def get_date(request):
+    if request.method == 'GET':
+        fields = ['date', 'date_id', 'day']
+        statement = "SELECT date, _id, day FROM screening_app_date ORDER BY date LIMIT 7"
 
-#         if _id is not None:
-#             movie = serialize(Movie.objects.filter(_id=_id), fields=('name', 'duration', 'rating'))
-#         elif rating is not None:
-#             movie = serialize(Movie.objects.filter(rating=rating), fields=('name', 'duration', 'rating'))
-#         return JsonResponse({'data' : movie})
+        all_date = run_sql(statement)
+
+        data = []
+        for date in all_date:
+            data.append(dict(zip(fields, date)))
+        return JsonResponse({'data' : data})
 
 # Create DATE
 def add_date(request):
@@ -79,145 +81,118 @@ def add_date(request):
 
 # ================== SCREENING ========================
 # Get SCREENING by DATE
-def get_screening_by_room(request):
+def get_screening_by_date(request):
     if request.method == 'GET':
-        room_id = request.GET.get('date_id', None)
-        if room_id is None:
+        date_id = request.GET.get('date_id', None)
+        if date_id is None:
             return JsonResponse({
-                'message': 'Missing room_id to get screening'
+                'message': 'Missing date_id to get screening'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        statement = "\
-            \
-            "
+        # GET MOVIE_IDs IN DATE
+        statement = "SELECT movie_id \
+                FROM screening_app_screening \
+                    WHERE date_id_id={}\
+            ".format(date_id)
 
+        all_screening = run_sql(statement)
+        movie_ids = list(set([s[0] for s in all_screening]))
+
+        # GET SCREENING OF MOVIE ABOVE
+        data = {
+            "movie": [],
+            "screening": []
+        }
+        screening_fields = ['screening_id', 'date_id', 'started_at', 'price', 'timeslot_id', 'movie_id']
+        for movie_id in movie_ids:
+            # GET MOVIE FROM MOVIE_ID
+            movie = requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(movie_id)).json()
+            data['movie'].append(movie)
+
+            # GET SCREENING FROM MOVIE_ID
+            statement = "SELECT screening_app_screening._id, date_id_id, screening_app_timeslot.started_at, screening_app_timeslot.price, timeslot_id_id, movie_id \
+                FROM (screening_app_screening \
+		                JOIN screening_app_timeslot ON screening_app_screening.timeslot_id_id = screening_app_timeslot._id) \
+                    WHERE date_id_id={} AND movie_id={} \
+            ".format(date_id, movie_id)
+
+            all_screening = run_sql(statement)
+            data_screening = []
+            for screening in all_screening:
+                data_screening.append(dict(zip(screening_fields, screening)))
+            data['screening'].append(data_screening)
+
+        return JsonResponse(data, status=status.HTTP_200_OK)
 
 # Create SCREENING
 def add_screening(request):
     if request.method == 'POST':
         body = json.loads(request.body)
 
-        movie_name = body['movie_name']
-        date = body['date']
-        timeslot = body['timeslot']
-        room = body['room']
+        movie_id = body['movie_id']
+        date_id = body['date_id']
+        timeslot_id = body['timeslot_id']
+        room_id = body['room_id']
 
-        if movie_name is None or date is None or timeslot is None or room is None:
+        if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
             return JsonResponse({
                 'message': 'Missing key to create'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
-
 
         try:
-            movie = Movie.objects.create(name=body['name'], duration=body['duration'], rating=body['rating'])
-        except KeyError:
+            Screening.objects.create(
+                timeslot_id = Timeslot.objects.get(_id=timeslot_id),
+                date_id = Date.objects.get(_id=date_id),
+                room_id = Room.objects.get(_id=room_id),
+                movie_id = movie_id
+            )
+        except:
             return JsonResponse({
-                'message': 'Missing key to create'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        if movie is None:
-            return JsonResponse({
-                'message': 'Add movie unsuccessfully'
+                'message': 'Duplicate unique fields'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({
-            'message': 'Add movie successfully'
+            'message': 'Add screening successfully'
         }, status=status.HTTP_201_CREATED)
 
-# Delete movie
-def del_movie(request):
+# Delete SCREENING
+def del_screening(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         _id = body['id']
-        print(_id)
         if _id is None:
             return JsonResponse({
-                'message': 'No movie deleted'
+                'message': 'Missing screening id, no screening deleted'
             }, status=status.HTTP_200_OK)
         
-        del_status = Movie.objects.filter(_id=_id).delete()
+        del_status = Screening.objects.filter(_id=_id).delete()
 
         return JsonResponse({
             'message': '{} movie deleted'.format(del_status[0])
         }, status=status.HTTP_200_OK)
 
-# Update movie
-def update_movie(request):
+# Update SCREENING
+def update_screening(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         _id = body['id']
         print(_id)
         if _id is None:
             return JsonResponse({
-                'message': 'No movie selected'
+                'message': 'Missing screening id, no screening selected'
             }, status=status.HTTP_200_OK)
         
-        movie = Movie.objects.get(_id=_id)
-        movie.name = body['name']
-        movie.duration = body['duration']
-        movie.rating = body['rating']
-        movie.save()
+        screening = Screening.objects.get(_id=_id)
+        screening.date_id = Date.objects.get(_id=body['date_id'])
+        screening.timeslot_id = Timeslot.objects.get(_id=body['timeslot_id'])
+        screening.room_id = Room.objects.get(_id=body['room_id'])
+        screening.movie_id = body['movie_id']
+        screening.save()
 
         return JsonResponse({
-            'message': 'Update movie successfully'
+            'message': 'Update screening successfully'
         }, status=status.HTTP_200_OK)
 
-# Get gerne
-def get_gerne(request):
-    if request.method == 'GET':
-        all_gerne = serialize(Gerne.objects.all(), fields=('name'))
-        return JsonResponse({'data' : [x['fields'] for x in all_gerne]})
-
-# Create gerne
-def add_gerne(request):
-    if request.method == 'POST':
-        body = json.loads(request.body)
-        try:
-            gerne = Gerne.objects.create(name=body['name'])
-        except KeyError:
-            return JsonResponse({
-                'message': 'Missing key to create gerne'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        return JsonResponse({
-            'message': 'Add successfully gerne'
-        }, status=status.HTTP_201_CREATED)
-
-# Update gerne
-def update_gerne(request):
-    if request.method == 'POST':
-        body = json.loads(request.body)
-        _id = body['id']
-        print(_id)
-        if _id is None:
-            return JsonResponse({
-                'message': 'No gerne selected'
-            }, status=status.HTTP_200_OK)
-        
-        gerne = Gerne.objects.get(_id=_id)
-        gerne.name = body['name']
-        gerne.save()
-
-        return JsonResponse({
-            'message': 'Update gerne successfully'
+    return JsonResponse({
+            'message': 'POST method expected but receive {}'.format(request.method)
         }, status=status.HTTP_200_OK)
-
-# Create movie_gerne
-def create_movie_gerne(request):
-    if request.method == 'POST':
-        body = json.loads(request.body)
-        try:
-            id_movie = body['id_movie']
-            id_gerne = body['id_gerne']
-        except KeyError:
-            return JsonResponse({
-                'message': 'Missing key to create movie_gerne'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        movie_gerne = Movie_Gerne.objects.create(movie_id=id_movie, gerne_id=id_gerne)
-
-        return JsonResponse({
-            'message': 'Add movie_gerne successfully'
-        }, status=status.HTTP_201_CREATED)
-        
