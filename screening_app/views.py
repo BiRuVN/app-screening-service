@@ -43,7 +43,7 @@ def run_sql(statement):
 def get_date(request):
     if request.method == 'GET':
         fields = ['date', 'date_id', 'day']
-        statement = "SELECT date, _id, day FROM screening_app_date ORDER BY date DESC LIMIT 7"
+        statement = "SELECT date, _id, day FROM screening_app_date ORDER BY date LIMIT 7"
 
         all_date = run_sql(statement)
 
@@ -127,7 +127,12 @@ def get_screening_by_date(request):
 # Create SCREENING
 def add_screening(request):
     if request.method == 'POST':
-        body = json.loads(request.body)
+        try:
+            body = json.loads(request.body)
+        except:
+            return JsonResponse({
+                'message': "Why here ???"
+            }, status=status.HTTP_400_BAD_REQUEST)
         try:
             movie_id = body['movie_id']
             date_id = body['date_id']
