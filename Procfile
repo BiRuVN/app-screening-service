@@ -1,1 +1,1 @@
-web: gunicorn MovieService.wsgi
+web: gunicorn ScreeningService.wsgi
