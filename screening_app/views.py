@@ -128,18 +128,27 @@ def get_screening_by_date(request):
 def add_screening(request):
     if request.method == 'POST':
         body = json.loads(request.body)
-
-        movie_id = body['movie_id']
-        date_id = body['date_id']
-        timeslot_id = body['timeslot_id']
-        room_id = body['room_id']
+        try:
+            movie_id = body['movie_id']
+            date_id = body['date_id']
+            timeslot_id = body['timeslot_id']
+            room_id = body['room_id']
+        except:
+            return JsonResponse({
+                'message': "Why missing key"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
             return JsonResponse({
                 'message': 'Missing key to create'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        movie = requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(movie_id))
+        try:
+            movie = requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(movie_id))
+        except:
+            return JsonResponse({
+                'message': "get movie error"
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         # if len(movie['data']) == 0:
         return JsonResponse({
