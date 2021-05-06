@@ -140,10 +140,11 @@ def add_screening(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         movie = requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(movie_id))
-        if len(movie['data']) == 0:
-            return JsonResponse({
-                'message': 'No available film to add'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # if len(movie['data']) == 0:
+        return JsonResponse({
+            'message': movie
+        }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             Screening.objects.create(
