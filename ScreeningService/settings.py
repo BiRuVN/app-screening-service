@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '47fl02$))ua%o526^e$$-eg!qw$m5f!c%8gvht(e5=+3$29m$j'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'screening_app'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -78,10 +80,10 @@ WSGI_APPLICATION = 'ScreeningService.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'screening',
-        'USER': 'postgres',
-        'PASSWORD': '7762119t',
-        'HOST': 'localhost',
+        'NAME': 'daunfa16q1o8o9',
+        'USER': 'ldribmxvxayffh',
+        'PASSWORD': '16a3463ea9dcde0721192d9dca747352b48c9d936590057264617a545ab720f9',
+        'HOST': 'ec2-54-160-96-70.compute-1.amazonaws.com',
         'PORT': '5432'
     }
 }
@@ -119,6 +121,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
