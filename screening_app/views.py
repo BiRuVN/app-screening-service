@@ -127,12 +127,9 @@ def get_screening_by_date(request):
 # Create SCREENING
 def add_screening(request):
     if request.method == 'POST':
-        try:
-            body = json.loads(request.body)
-        except:
-            return JsonResponse({
-                'message': "Why here ???"
-            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        body = json.loads(request.body)
+        
         try:
             movie_id = body['movie_id']
             date_id = body['date_id']
@@ -140,17 +137,12 @@ def add_screening(request):
             room_id = body['room_id']
         except:
             return JsonResponse({
-                'message': "Why missing key"
+                'message': "Missing key"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
-                return JsonResponse({
-                    'message': 'Missing key to create'
-                }, status=status.HTTP_400_BAD_REQUEST)
-        except:
+        if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
             return JsonResponse({
-                'message': "Vailonluondaucatmoi"
+                'message': 'Missing key to create'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -160,10 +152,10 @@ def add_screening(request):
                 'message': "get movie error"
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # if len(movie['data']) == 0:
-        return JsonResponse({
-            'message': movie
-        }, status=status.HTTP_400_BAD_REQUEST)
+        if len(movie['data']) == 0:
+            return JsonResponse({
+                'message': "No movie available in database"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             Screening.objects.create(
