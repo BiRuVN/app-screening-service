@@ -143,9 +143,14 @@ def add_screening(request):
                 'message': "Why missing key"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
+        try:
+            if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
+                return JsonResponse({
+                    'message': 'Missing key to create'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except:
             return JsonResponse({
-                'message': 'Missing key to create'
+                'message': "Vailonluondaucatmoi"
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
