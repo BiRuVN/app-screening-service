@@ -154,7 +154,7 @@ def add_screening(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            movie = requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(movie_id))
+            movie = requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(movie_id)).json()
         except:
             return JsonResponse({
                 'message': "get movie error"
