@@ -215,8 +215,8 @@ def add_screening(request):
 
         return JsonResponse({
             'data': {
-                'screening_id': sc['_id'],
-                'date_id': sc['date_id'],
+                'screening_id': sc._id,
+                'date_id': sc.date_id,
                 'room_id': room_id,
                 'date': date,
                 'timeslot_id': Timeslot.objects.get(started_at=started_at).timeslot_id,
@@ -238,7 +238,7 @@ def del_screening(request):
         if _id is None:
             return JsonResponse({
                 'message': 'Missing screening id, no screening deleted'
-            }, status=status.HTTP_400_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         del_status = Screening.objects.filter(_id=_id).delete()
 
@@ -255,7 +255,7 @@ def update_screening(request):
         if _id is None:
             return JsonResponse({
                 'message': 'Missing screening id, no screening selected'
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         screening = Screening.objects.get(_id=_id)
         screening.date_id = Date.objects.get(date=body['date'])
@@ -270,4 +270,4 @@ def update_screening(request):
 
     return JsonResponse({
             'message': 'POST method expected but receive {}'.format(request.method)
-        }, status=status.HTTP_200_OK)
+        }, status=status.HTTP_400_BAD_REQUEST)
