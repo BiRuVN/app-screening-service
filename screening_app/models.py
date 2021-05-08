@@ -11,7 +11,6 @@ class Room(models.Model):
 class Timeslot(models.Model):
     _id = models.AutoField(primary_key=True, null=False)
     started_at = models.TimeField(unique=True, null=False)
-    # duration = models.CharField(max_length=50)
     price = models.IntegerField(default=45000)
 
     def __str__(self):

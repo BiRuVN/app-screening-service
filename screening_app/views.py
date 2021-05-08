@@ -22,22 +22,11 @@ def run_sql(statement):
 
 # ================= ROOM ======================
 # Get ROOM
-# def get_room(request):
-#     if request.method == 'GET':
-#         _id = request.GET.get('id', None)
-#         rating = request.GET.get('rating', None)
-#         print(_id, '---', rating)
+def get_room(request):
+    if request.method == 'GET':
+        all_room = serialize(Room.objects.all(), fields=('_id', 'name'))
+        return JsonResponse({'data' : [x['fields'] for x in all_room]})
 
-#         if _id is None and rating is None:
-#             all_movie = serialize(Movie.objects.all(), fields=('name', 'duration', 'rating'))
-#             return JsonResponse({'data' : [x['fields'] for x in all_movie]})
-
-#         if _id is not None:
-#             movie = serialize(Movie.objects.filter(_id=_id), fields=('name', 'duration', 'rating'))
-#         elif rating is not None:
-#             movie = serialize(Movie.objects.filter(rating=rating), fields=('name', 'duration', 'rating'))
-#         return JsonResponse({'data' : movie})
-        
 # ================== DATE ========================
 # Get DATE
 def get_date(request):
@@ -70,23 +59,18 @@ def add_date(request):
 
 # ================== TIMESLOT ========================
 # Get TIMESLOT
-# def get_timeslot(request):
-#     if request.method == 'GET':
-#         _id = request.GET.get('id', None)
-#         rating = request.GET.get('rating', None)
-#         print(_id, '---', rating)
-
-#         if _id is None and rating is None:
-#             all_movie = serialize(Movie.objects.all(), fields=('name', 'duration', 'rating'))
-#             return JsonResponse({'data' : [x['fields'] for x in all_movie]})
-
-#         if _id is not None:
-#             movie = serialize(Movie.objects.filter(_id=_id), fields=('name', 'duration', 'rating'))
-#         elif rating is not None:
-#             movie = serialize(Movie.objects.filter(rating=rating), fields=('name', 'duration', 'rating'))
-#         return JsonResponse({'data' : movie})
+def get_timeslot(request):
+    if request.method == 'GET':
+        all_timeslot = serialize(Room.objects.all(), fields=('_id', 'started_at', 'price'))
+        return JsonResponse({'data' : [x['fields'] for x in all_timeslot]})
 
 # ================== SCREENING ========================
+# Get SCREENING by ROOM
+def get_screening_by_room(request):
+    if request.method == 'GET':
+        room_id = request.GET.get('room_id', None)
+    return None
+    
 # Get SCREENING by DATE
 def get_screening_by_date(request):
     if request.method == 'GET':
