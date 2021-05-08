@@ -88,26 +88,18 @@ def get_screening_by_room(request):
                 'message': 'Missing room_id to get screening'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Update and get 6 dates ahead
+        # Update and get 7 dates ahead
         try:
-            update_date_range()
+            update_date_range(limit=7)
         except:
             return JsonResponse({
                 'message': 'Fail when update date range'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            date_fields = ['date', 'date_id', 'day']
-            data_date = get_all(date_fields, "SELECT date, _id, day FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT 6")
-        except:
-            return JsonResponse({
-                'message': 'Fail when get date'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
         # Get all Screening in room
         try:
-            screening_fields = ['screening_id', 'date_id', 'room_id', 'timeslot_id', 'started_at', 'movie_id', 'price']
-            statement = "SELECT screening_app_screening._id, date_id_id, room_id_id, timeslot_id_id, started_at, movie_id, price \
+            screening_fields = ['screening_id', 'date_id', 'room_id', 'date', 'timeslot_id', 'started_at', 'movie_id', 'price']
+            statement = "SELECT screening_app_screening._id, date_id_id, room_id_id, date, timeslot_id_id, started_at, movie_id, price \
                         FROM ((screening_app_screening \
                             JOIN screening_app_date ON screening_app_screening.date_id_id = screening_app_date._id) \
                                 JOIN screening_app_timeslot ON screening_app_screening.timeslot_id_id = screening_app_timeslot._id) \
@@ -120,22 +112,16 @@ def get_screening_by_room(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         # Megre movie into screening data
-        for i in range(len(data_screening)):
-            movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(data_screening[i]['movie_id']))).json()['data'][0])
-            data_screening[i]['movie'] = dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration'])
-
         try:
-            data = {'data': dict()}
-            data['data']['date'] = data_date
-            # data['data']['timeslot'] = data_timeslot
-            # data['data']['movie'] = data_movie
-            data['data']['screening'] = data_screening
+            for i in range(len(data_screening)):
+                movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(data_screening[i]['movie_id']))).json()['data'][0])
+                data_screening[i]['movie'] = dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration'])
         except:
             return JsonResponse({
-                'message': 'Fail when make data'
+                'message': 'Fail when merge movie into screening'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        return JsonResponse(data, status=status.HTTP_200_OK)
+        return JsonResponse({'data': data_screening}, status=status.HTTP_200_OK)
 
 # Get SCREENING by DATE
 def get_screening_by_date(request):
