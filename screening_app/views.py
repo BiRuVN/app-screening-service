@@ -89,13 +89,13 @@ def get_screening_by_room(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get all timeslot
-        try:
-            timeslot_fields = ['timeslot_id', 'started_at', 'price']
-            data_timeslot = get_all(timeslot_fields, "SELECT _id, started_at, price FROM screening_app_timeslot")
-        except:
-            return JsonResponse({
-                'message': 'Fail when get timeslot'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     timeslot_fields = ['timeslot_id', 'started_at', 'price']
+        #     data_timeslot = get_all(timeslot_fields, "SELECT _id, started_at, price FROM screening_app_timeslot")
+        # except:
+        #     return JsonResponse({
+        #         'message': 'Fail when get timeslot'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
 
         # Update and get 6 dates ahead
         try:
@@ -115,8 +115,8 @@ def get_screening_by_room(request):
 
         # Get all Screening in room
         try:
-            screening_fields = ['screening_id', 'date_id', 'room_id', 'timeslot_id', 'movie_id', 'price']
-            statement = "SELECT screening_app_screening._id, date_id_id, room_id_id, timeslot_id_id, movie_id, price \
+            screening_fields = ['screening_id', 'date_id', 'room_id', 'timeslot_id', 'started_at', 'movie_id', 'price']
+            statement = "SELECT screening_app_screening._id, date_id_id, room_id_id, timeslot_id_id, started_at, movie_id, price \
                         FROM ((screening_app_screening \
                             JOIN screening_app_date ON screening_app_screening.date_id_id = screening_app_date._id) \
                                 JOIN screening_app_timeslot ON screening_app_screening.timeslot_id_id = screening_app_timeslot._id) \
@@ -140,28 +140,33 @@ def get_screening_by_room(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get movie from movie_ids
-        try:
-            data_movie = []
-            for m_id in movie_ids:
-                movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(m_id))).json()['data'][0])
-                data_movie.append(dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration']))
-        except:
-            return JsonResponse({
-                'message': 'Fail when get movie from movie_ids'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     data_movie = []
+        #     for m_id in movie_ids:
+        #         movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(m_id))).json()['data'][0])
+        #         data_movie.append(dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration']))
+        # except:
+        #     return JsonResponse({
+        #         'message': 'Fail when get movie from movie_ids'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
         
+        # Megre movie into screening data
+        for i in range(len(data_screening)):
+            movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(data_screening[i]['movie_id']))).json()['data'][0])
+            data_screening[i]['movie'] = dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration'])
+
         try:
             data = {'data': dict()}
             data['data']['date'] = data_date
-            data['data']['timeslot'] = data_timeslot
-            data['data']['movie'] = data_movie
+            # data['data']['timeslot'] = data_timeslot
+            # data['data']['movie'] = data_movie
             data['data']['screening'] = data_screening
         except:
             return JsonResponse({
                 'message': 'Fail when make data'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
+        return JsonResponse(data, status=status.HTTP_200_OK)
 
 # Get SCREENING by DATE
 def get_screening_by_date(request):
