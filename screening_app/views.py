@@ -217,13 +217,13 @@ def add_screening(request):
             'data': {
                 'screening_id': sc['_id'],
                 'date_id': sc['date_id'],
-                'room_id': sc['room_id'],
-                'date': Date.objects.get(_id=sc['date_id']).date,
-                'timeslot_id': sc['timesslot_id'],
-                'started_at': Timeslot.objects.get(_id=sc['timeslot_id']).started_at,
+                'room_id': room_id,
+                'date': date,
+                'timeslot_id': Timeslot.objects.get(started_at=started_at).timeslot_id,
+                'started_at': started_at,
                 'price': Timeslot.objects.get(_id=sc['timeslot_id']).price,
                 'movie': {
-                    'movie_id': sc['movie_id'],
+                    'movie_id': movie_id,
                     'movie_name': movie['data']['movie_name'],
                     'duration': movie['data']['duration']
                 }
