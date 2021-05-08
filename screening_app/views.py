@@ -20,61 +20,113 @@ def run_sql(statement):
             return row
         cursor.commit()
 
+def get_all(fields, statement):
+    all_record = run_sql(statement)
+    data = []
+    for record in all_record:
+        data.append(dict(zip(fields, record)))
+    return data
+
+def update_date_range(limit=6):
+    fields = ['date']
+    statement = "SELECT date FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT {}".format(str(limit))
+
+    data = get_all(fields, statement)
+
+    missing_date = limit - len(data)
+    if missing_date > 0:
+        for i in range(1, missing_date+1):
+            run_sql("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}, To_Char(DATE(NOW())+{}, 'Day'))".format(str(missing_date)))
+
 # ================= ROOM ======================
 # Get ROOM
 def get_room(request):
     if request.method == 'GET':
-        fields = ['room_id', 'room_name']
-        all_room = run_sql("SELECT * FROM screening_app_room")
-        data = []
-        for room in all_room:
-            data.append(dict(zip(fields, room)))
-
+        data = get_all(fields, "SELECT * FROM screening_app_room")
         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
 # ================== DATE ========================
 # Get DATE
 def get_date(request):
     if request.method == 'GET':
+        update_date_range()
+
         fields = ['date', 'date_id', 'day']
         statement = "SELECT date, _id, day FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT 6"
 
-        all_date = run_sql(statement)
+        data = get_all(fields, statement)
 
-        missing_date = 6 - len(all_date)
-        if missing_date > 0:
-            for i in range(1, missing_date+1):
-                run_sql("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}, To_Char(DATE(NOW())+{}, 'Day'))".format(str(missing_date)))
-
-            all_date = run_sql(statement)
-
-        data = []
-        for date in all_date:
-            data.append(dict(zip(fields, date)))
         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
 # Create DATE
-def add_date(request):
-    if request.method == 'POST':
-        statement = "INSERT INTO screening_app_date (date) VALUES (NOW());"
-        run_sql(statement)
-        return JsonResponse({
-            'message': 'Add date successfully'
-        }, status=status.HTTP_201_CREATED) 
+# def add_date(request):
+#     if request.method == 'POST':
+#         statement = "INSERT INTO screening_app_date (date) VALUES (NOW());"
+#         run_sql(statement)
+#         return JsonResponse({
+#             'message': 'Add date successfully'
+#         }, status=status.HTTP_201_CREATED) 
 
 # ================== TIMESLOT ========================
 # Get TIMESLOT
-def get_timeslot(request):
-    if request.method == 'GET':
-        all_timeslot = serialize(Room.objects.all(), fields=('_id', 'started_at', 'price'))
-        return JsonResponse({'data' : [x['fields'] for x in all_timeslot]})
+# def get_timeslot(request):
+#     if request.method == 'GET':
+#         fields = ['_id', 'started_at', 'price']
+#         data = get_all(fields, "SELECT * FROM screening_app_timeslot")
+
+#         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
 # ================== SCREENING ========================
 # Get SCREENING by ROOM
 def get_screening_by_room(request):
     if request.method == 'GET':
+        # Get room_id
         room_id = request.GET.get('room_id', None)
-    return None
+
+        if room_id is None:
+            return JsonResponse({
+                'message': 'Missing room_id to get screening'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get all timeslot
+        timeslot_fields = ['timeslot_id', 'started_at', 'price']
+        data_timeslot = get_all(fields, "SELECT _id, started_at, price FROM screening_app_timeslot")
+
+        # Update and get 6 dates ahead
+        update_date_range()
+
+        date_fields = ['date', 'date_id', 'day']
+        data_date = get_all(fields, "SELECT date, _id, day FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT 6")
+
+        # Get all Screening in room
+        screening_fields = ['screening_id', 'date_id', 'room_id', 'timeslot_id', 'movie_id', 'price']
+        statement = "SELECT screening_app_screening._id, date_id_id, room_id_id, timeslot_id_id, movie_id, price \
+                    FROM ((screening_app_screening \
+                        JOIN screening_app_date ON screening_app_screening.date_id_id = screening_app_date._id) \
+                            JOIN screening_app_timeslot ON screening_app_screening.timeslot_id_id = screening_app_timeslot._id) \
+                        WHERE room_id_id = 1 \
+                                AND DATE(date) >= DATE(NOW()) AND DATE(date) <= DATE(NOW())+6"
+        data_screening = get_all(screening_fields, statement)
+
+        # Get movie_id from data_screening
+        movie_ids = []
+        for sc in data_screening:
+            movie_ids.append(sc['movie_id'])
+        movie_ids = list(set(movie_ids))
+
+        # Get movie from movie_ids
+        data_movie = []
+        for m_id in movie_ids:
+            movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(m_id))).json()['data'])
+            data_movie.append(dict((k, v) for k, v in movie.iteritems() if k in ['movie_id', 'movie_name', 'duration']))
+        
+        data = {'data': dict()}
+        data['data']['date'] = data_date
+        data['data']['timeslot'] = data_timeslot
+        data['data']['movie'] = data_movie
+        data['data']['screening'] = data_screening
+
+        return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
 # Get SCREENING by DATE
 def get_screening_by_date(request):
