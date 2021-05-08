@@ -221,7 +221,7 @@ def add_screening(request):
                 'date': date,
                 'timeslot_id': Timeslot.objects.get(started_at=started_at).timeslot_id,
                 'started_at': started_at,
-                'price': Timeslot.objects.get(_id=sc['timeslot_id']).price,
+                'price': Timeslot.objects.get(started_at=started_at).price,
                 'movie': {
                     'movie_id': movie_id,
                     'movie_name': movie['data']['movie_name'],
