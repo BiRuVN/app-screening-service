@@ -202,7 +202,7 @@ def add_screening(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            Screening.objects.create(
+            sc = Screening.objects.create(
                 timeslot_id = Timeslot.objects.get(started_at=started_at),
                 date_id = Date.objects.get(date=date),
                 room_id = Room.objects.get(_id=room_id),
@@ -214,7 +214,20 @@ def add_screening(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({
-            'message': 'Add screening successfully'
+            'data': {
+                'screening_id': sc['_id'],
+                'date_id': sc['date_id'],
+                'room_id': sc['room_id'],
+                'date': Date.objects.get(_id=sc['date_id'])['date'],
+                'timeslot_id': sc['timesslot_id'],
+                'started_at': Timeslot.objects.get(_id=sc['timeslot_id'])['started_at'],
+                'price': Timeslot.objects.get(_id=sc['timeslot_id'])['price'],
+                'movie': {
+                    'movie_id': sc['movie_id'],
+                    'movie_name': movie['data']['movie_name'],
+                    'duration': movie['data']['duration']
+                }
+            }
         }, status=status.HTTP_201_CREATED)
 
 # Delete SCREENING
@@ -225,12 +238,12 @@ def del_screening(request):
         if _id is None:
             return JsonResponse({
                 'message': 'Missing screening id, no screening deleted'
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_OK)
         
         del_status = Screening.objects.filter(_id=_id).delete()
 
         return JsonResponse({
-            'message': '{} movie deleted'.format(del_status[0])
+            'message': 'Screening deleted'
         }, status=status.HTTP_200_OK)
 
 # Update SCREENING
@@ -245,8 +258,8 @@ def update_screening(request):
             }, status=status.HTTP_200_OK)
         
         screening = Screening.objects.get(_id=_id)
-        screening.date_id = Date.objects.get(_id=body['date_id'])
-        screening.timeslot_id = Timeslot.objects.get(_id=body['timeslot_id'])
+        screening.date_id = Date.objects.get(date=body['date'])
+        screening.timeslot_id = Timeslot.objects.get(created_at=body['created_at'])
         screening.room_id = Room.objects.get(_id=body['room_id'])
         screening.movie_id = body['movie_id']
         screening.save()
