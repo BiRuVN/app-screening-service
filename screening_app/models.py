@@ -4,6 +4,8 @@ from django.db import models
 class Room(models.Model):
     _id = models.AutoField(primary_key=True, null=False)
     name = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.name
@@ -12,6 +14,8 @@ class Timeslot(models.Model):
     _id = models.AutoField(primary_key=True, null=False)
     started_at = models.TimeField(unique=True, null=False)
     price = models.IntegerField(default=45000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.started_at
@@ -20,6 +24,8 @@ class Date(models.Model):
     _id = models.AutoField(primary_key=True, null=False)
     date = models.DateField(auto_created=True, unique=True, null=False)
     day = models.CharField(max_length=10, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.date
@@ -33,6 +39,8 @@ class Screening(models.Model):
     room_id = models.ForeignKey(Room, on_delete=models.CASCADE)
     date_id = models.ForeignKey(Date, on_delete=models.CASCADE)
     movie_id = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
 
     class Meta:
