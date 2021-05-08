@@ -43,9 +43,16 @@ def run_sql(statement):
 def get_date(request):
     if request.method == 'GET':
         fields = ['date', 'date_id', 'day']
-        statement = "SELECT date, _id, day FROM screening_app_date ORDER BY date LIMIT 7"
+        statement = "SELECT date, _id, day FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT 7"
 
         all_date = run_sql(statement)
+
+        missing_date = 7 - len(all_date)
+        if missing_date > 0:
+            for i in range(1, missing_date+1):
+                run_sql("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}, To_Char(DATE(NOW())+{}, 'Day'))".format(str(missing_date)))
+
+            all_date = run_sql(statement)
 
         data = []
         for date in all_date:
@@ -55,7 +62,7 @@ def get_date(request):
 # Create DATE
 def add_date(request):
     if request.method == 'POST':
-        statement = "INSERT INTO public.screening_app_date (date) VALUES (NOW());"
+        statement = "INSERT INTO screening_app_date (date) VALUES (NOW());"
         run_sql(statement)
         return JsonResponse({
             'message': 'Add date successfully'
