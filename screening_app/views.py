@@ -88,15 +88,6 @@ def get_screening_by_room(request):
                 'message': 'Missing room_id to get screening'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get all timeslot
-        # try:
-        #     timeslot_fields = ['timeslot_id', 'started_at', 'price']
-        #     data_timeslot = get_all(timeslot_fields, "SELECT _id, started_at, price FROM screening_app_timeslot")
-        # except:
-        #     return JsonResponse({
-        #         'message': 'Fail when get timeslot'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
-
         # Update and get 6 dates ahead
         try:
             update_date_range()
@@ -128,28 +119,6 @@ def get_screening_by_room(request):
                 'message': 'Fail when get screening'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get movie_id from data_screening
-        # try:
-        #     movie_ids = []
-        #     for sc in data_screening:
-        #         movie_ids.append(sc['movie_id'])
-        #     movie_ids = list(set(movie_ids))
-        # except:
-        #     return JsonResponse({
-        #         'message': 'Fail when get movie_ids'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Get movie from movie_ids
-        # try:
-        #     data_movie = []
-        #     for m_id in movie_ids:
-        #         movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(m_id))).json()['data'][0])
-        #         data_movie.append(dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration']))
-        # except:
-        #     return JsonResponse({
-        #         'message': 'Fail when get movie from movie_ids'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
-        
         # Megre movie into screening data
         for i in range(len(data_screening)):
             movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(data_screening[i]['movie_id']))).json()['data'][0])
