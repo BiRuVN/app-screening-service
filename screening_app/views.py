@@ -143,8 +143,8 @@ def get_screening_by_room(request):
         try:
             data_movie = []
             for m_id in movie_ids:
-                movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(m_id))).json()['data'])
-                data_movie.append(dict((k, v) for k, v in movie.iteritems() if k in ['movie_id', 'movie_name', 'duration']))
+                movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(m_id))).json()['data'][0])
+                data_movie.append(dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration']))
         except:
             return JsonResponse({
                 'message': 'Fail when get movie from movie_ids'
