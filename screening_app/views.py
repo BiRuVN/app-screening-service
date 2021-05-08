@@ -176,17 +176,17 @@ def add_screening(request):
         
         try:
             movie_id = body['movie_id']
-            date_id = body['date_id']
-            timeslot_id = body['timeslot_id']
+            date = body['date']
+            started_at = body['started_at']
             room_id = body['room_id']
         except:
             return JsonResponse({
                 'message': "Missing key"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        if date_id is None or timeslot_id is None or room_id is None or movie_id is None:
+        if date is None or started_at is None or room_id is None or movie_id is None:
             return JsonResponse({
-                'message': 'Missing key to create'
+                'message': 'Key get None'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -203,8 +203,8 @@ def add_screening(request):
 
         try:
             Screening.objects.create(
-                timeslot_id = Timeslot.objects.get(_id=timeslot_id),
-                date_id = Date.objects.get(_id=date_id),
+                timeslot_id = Timeslot.objects.get(started_at=started_at),
+                date_id = Date.objects.get(date=date),
                 room_id = Room.objects.get(_id=room_id),
                 movie_id = movie_id
             )
