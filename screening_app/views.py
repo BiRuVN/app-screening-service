@@ -116,6 +116,7 @@ def get_screening_by_room(request):
             for i in range(len(data_screening)):
                 movie = dict(requests.get('https://app-movie-genre-service.herokuapp.com/movie?id={}'.format(str(data_screening[i]['movie_id']))).json()['data'][0])
                 data_screening[i]['movie'] = dict((k, v) for k, v in movie.items() if k in ['movie_id', 'movie_name', 'duration'])
+                del(data_screening[i]['movie_id'])
         except:
             return JsonResponse({
                 'message': 'Fail when merge movie into screening'
