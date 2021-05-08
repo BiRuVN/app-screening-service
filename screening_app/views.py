@@ -91,7 +91,7 @@ def get_screening_by_room(request):
         # Get all timeslot
         try:
             timeslot_fields = ['timeslot_id', 'started_at', 'price']
-            data_timeslot = get_all(fields, "SELECT _id, started_at, price FROM screening_app_timeslot")
+            data_timeslot = get_all(timeslot_fields, "SELECT _id, started_at, price FROM screening_app_timeslot")
         except:
             return JsonResponse({
                 'message': 'Fail when get timeslot'
@@ -107,7 +107,7 @@ def get_screening_by_room(request):
 
         try:
             date_fields = ['date', 'date_id', 'day']
-            data_date = get_all(fields, "SELECT date, _id, day FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT 6")
+            data_date = get_all(date_fields, "SELECT date, _id, day FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT 6")
         except:
             return JsonResponse({
                 'message': 'Fail when get date'
