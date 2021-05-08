@@ -120,8 +120,8 @@ def get_screening_by_room(request):
                         FROM ((screening_app_screening \
                             JOIN screening_app_date ON screening_app_screening.date_id_id = screening_app_date._id) \
                                 JOIN screening_app_timeslot ON screening_app_screening.timeslot_id_id = screening_app_timeslot._id) \
-                            WHERE room_id_id = 1 \
-                                    AND DATE(date) >= DATE(NOW()) AND DATE(date) <= DATE(NOW())+6"
+                            WHERE room_id_id = {} \
+                                    AND DATE(date) >= DATE(NOW()) AND DATE(date) <= DATE(NOW())+6".format(str(room_id))
             data_screening = get_all(screening_fields, statement)
         except:
             return JsonResponse({
@@ -129,15 +129,15 @@ def get_screening_by_room(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get movie_id from data_screening
-        try:
-            movie_ids = []
-            for sc in data_screening:
-                movie_ids.append(sc['movie_id'])
-            movie_ids = list(set(movie_ids))
-        except:
-            return JsonResponse({
-                'message': 'Fail when get movie_ids'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     movie_ids = []
+        #     for sc in data_screening:
+        #         movie_ids.append(sc['movie_id'])
+        #     movie_ids = list(set(movie_ids))
+        # except:
+        #     return JsonResponse({
+        #         'message': 'Fail when get movie_ids'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get movie from movie_ids
         # try:
