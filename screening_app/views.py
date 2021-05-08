@@ -211,21 +211,21 @@ def add_screening(request):
         except:
             return JsonResponse({
                 'message': 'Duplicate unique fields'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_400_BAD_REQUEST)        
 
         return JsonResponse({
             'data': {
                 'screening_id': sc._id,
-                'date_id': sc.date_id,
+                'date_id': Date.objects.filter(date=date).values()[0]['_id'],
                 'room_id': room_id,
                 'date': date,
-                'timeslot_id': Timeslot.objects.get(started_at=started_at).timeslot_id,
+                'timeslot_id': Timeslot.objects.filter(started_at=started_at).values()[0]['_id'],
                 'started_at': started_at,
-                'price': Timeslot.objects.get(started_at=started_at).price,
+                'price': Timeslot.objects.filter(started_at=started_at).values()[0]['price'],
                 'movie': {
                     'movie_id': movie_id,
-                    'movie_name': movie['data']['movie_name'],
-                    'duration': movie['data']['duration']
+                    'movie_name': movie['data'][0]['movie_name'],
+                    'duration': movie['data'][0]['duration']
                 }
             }
         }, status=status.HTTP_201_CREATED)
@@ -251,7 +251,7 @@ def update_screening(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         _id = body['id']
-        print(_id)
+
         if _id is None:
             return JsonResponse({
                 'message': 'Missing screening id, no screening selected'
@@ -259,7 +259,7 @@ def update_screening(request):
         
         screening = Screening.objects.get(_id=_id)
         screening.date_id = Date.objects.get(date=body['date'])
-        screening.timeslot_id = Timeslot.objects.get(created_at=body['created_at'])
+        screening.timeslot_id = Timeslot.objects.get(started_at=body['started_at'])
         screening.room_id = Room.objects.get(_id=body['room_id'])
         screening.movie_id = body['movie_id']
         screening.save()
