@@ -42,7 +42,7 @@ def update_date_range(limit=6):
 # Get ROOM
 def get_room(request):
     if request.method == 'GET':
-        data = get_all(fields, "SELECT * FROM screening_app_room")
+        data = get_all(['room_id', 'room_name'], "SELECT _id, name FROM screening_app_room")
         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
 # ================== DATE ========================
