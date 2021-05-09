@@ -2,16 +2,27 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import status
 from screening_app.models import *
-from django.core import serializers
 import rest_framework
 import ast
 import json
 import requests
 from django.db import connection
 import datetime
+import base64
 
-def serialize(querysetObject, fields=()):
-    return ast.literal_eval(serializers.serialize('json', querysetObject, fields=fields))
+def check_token(token):
+    payload = base64.b64decode(token)
+    x = ''.join(map(chr, list(payload)))
+    
+    auth = {}
+    for role in ['ROLE_EMPLOYEE', 'ROLE_GUEST', 'ROLE_ADMIN']:
+        if role in x:
+            auth['ROLE'] = role
+            break
+    for action in ['CREATE', 'READ', 'UPDATE', 'DELETE']:
+        auth[action] = True if action in x else False
+
+    return auth
 
 def run_sql(statement):
     with connection.cursor() as cursor:
@@ -49,6 +60,23 @@ def update_date_range(limit=6):
 # Get ROOM
 def get_room(request):
     if request.method == 'GET':
+        try:
+            auth = check_token(request.headers['x-access-token'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN':
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not auth['READ']:
+            return JsonResponse({
+                'message': 'READ permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         data = get_all(['room_id', 'room_name'], "SELECT _id, name FROM screening_app_room")
         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
@@ -56,6 +84,23 @@ def get_room(request):
 # Get DATE
 def get_date(request):
     if request.method == 'GET':
+        # try:
+        #     auth = check_token(request.headers['x-access-token'])
+        # except:
+        #     return JsonResponse({
+        #         'message': 'Mising auth token'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
+
+        # if auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN' or auth['ROLE'] == 'ROLE_GUEST':
+        #     return JsonResponse({
+        #         'message': 'Permission denied'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
+
+        # if not auth['READ']:
+        #     return JsonResponse({
+        #         'message': 'READ permission denied'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
+        
         update_date_range()
 
         fields = ['date', 'date_id', 'day']
@@ -65,28 +110,27 @@ def get_date(request):
 
         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
-# Create DATE
-# def add_date(request):
-#     if request.method == 'POST':
-#         statement = "INSERT INTO screening_app_date (date) VALUES (NOW());"
-#         run_sql(statement)
-#         return JsonResponse({
-#             'message': 'Add date successfully'
-#         }, status=status.HTTP_201_CREATED) 
-
-# ================== TIMESLOT ========================
-# Get TIMESLOT
-# def get_timeslot(request):
-#     if request.method == 'GET':
-#         fields = ['_id', 'started_at', 'price']
-#         data = get_all(fields, "SELECT * FROM screening_app_timeslot")
-
-#         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
-
 # ================== SCREENING ========================
 # Get SCREENING by ROOM
 def get_screening_by_room(request):
     if request.method == 'GET':
+        try:
+            auth = check_token(request.headers['x-access-token'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN':
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not auth['READ']:
+            return JsonResponse({
+                'message': 'READ permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         # Get room_id
         room_id = request.GET.get('room_id', None)
 
@@ -138,6 +182,23 @@ def get_screening_by_room(request):
 # Get SCREENING by DATE
 def get_screening_by_date(request):
     if request.method == 'GET':
+        # try:
+        #     auth = check_token(request.headers['x-access-token'])
+        # except:
+        #     return JsonResponse({
+        #         'message': 'Mising auth token'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
+
+        # if auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN' or auth['ROLE'] == 'ROLE_GUEST':
+        #     return JsonResponse({
+        #         'message': 'Permission denied'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
+
+        # if not auth['READ']:
+        #     return JsonResponse({
+        #         'message': 'READ permission denied'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
+
         date_id = request.GET.get('date_id', None)
         if date_id is None:
             return JsonResponse({
@@ -182,7 +243,23 @@ def get_screening_by_date(request):
 # Create SCREENING
 def add_screening(request):
     if request.method == 'POST':
-        
+        try:
+            auth = check_token(request.headers['x-access-token'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN':
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not auth['CREATE']:
+            return JsonResponse({
+                'message': 'CREATE permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         body = json.loads(request.body)
         
         try:
@@ -244,6 +321,23 @@ def add_screening(request):
 # Delete SCREENING
 def del_screening(request):
     if request.method == 'POST':
+        try:
+            auth = check_token(request.headers['x-access-token'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN':
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not auth['DELETE']:
+            return JsonResponse({
+                'message': 'DELETE permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         body = json.loads(request.body)
         _id = body['id']
         if _id is None:
@@ -260,6 +354,23 @@ def del_screening(request):
 # Update SCREENING
 def update_screening(request):
     if request.method == 'POST':
+        try:
+            auth = check_token(request.headers['x-access-token'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN':
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not auth['UPDATE']:
+            return JsonResponse({
+                'message': 'UPDATE permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         body = json.loads(request.body)
         _id = body['id']
 
