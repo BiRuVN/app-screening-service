@@ -90,6 +90,10 @@ def get_screening_by_room(request):
         # Get room_id
         room_id = request.GET.get('room_id', None)
 
+        return JsonResponse({
+                'message': request.headers['x-access-token']
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         if room_id is None:
             return JsonResponse({
                 'message': 'Missing room_id to get screening'
