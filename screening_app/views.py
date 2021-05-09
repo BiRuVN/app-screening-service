@@ -8,6 +8,7 @@ import ast
 import json
 import requests
 from django.db import connection
+import datetime
 
 def serialize(querysetObject, fields=()):
     return ast.literal_eval(serializers.serialize('json', querysetObject, fields=fields))
@@ -38,8 +39,11 @@ def update_date_range(limit=6):
     print(missing_date)
     if missing_date > 0:
         for i in range(1, missing_date+1):
-            print("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}+{}, To_Char(DATE(NOW())+{}+{}, 'Day'))".format(str(len(data)), str(i), str(len(data)), str(i)))
-            run_sql("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}+{}, To_Char(DATE(NOW())+{}+{}, 'Day'))".format(str(len(data)), str(i), str(len(data)), str(i)))
+            # print()
+            Date.objects.create(
+                date=(datetime.datetime.today() + datetime.timedelta(days=len(data)+i)).strftime('%Y-%m-%d'),
+                day=(datetime.datetime.today() + datetime.timedelta(days=len(data)+i)).strftime('%A')
+                )
 
 # ================= ROOM ======================
 # Get ROOM
@@ -95,10 +99,9 @@ def get_screening_by_room(request):
         try:
             update_date_range(limit=7)
         except:
-            pass
-            # return JsonResponse({
-            #     'message': 'Fail when update date range'
-            # }, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({
+                'message': 'Fail when update date range'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get all Screening in room
         try:
