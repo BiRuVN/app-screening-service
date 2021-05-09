@@ -32,11 +32,14 @@ def update_date_range(limit=6):
     statement = "SELECT date FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT {}".format(str(limit))
 
     data = get_all(fields, statement)
+    print(data)
 
     missing_date = limit - len(data)
+    print(missing_date)
     if missing_date > 0:
         for i in range(1, missing_date+1):
-            run_sql("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}, To_Char(DATE(NOW())+{}, 'Day'))".format(str(missing_date)))
+            print("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}+{}, To_Char(DATE(NOW())+{}+{}, 'Day'))".format(str(len(data)), str(i), str(len(data)), str(i)))
+            run_sql("INSERT INTO screening_app_date (date, day) VALUES (DATE(NOW())+{}+{}, To_Char(DATE(NOW())+{}+{}, 'Day'))".format(str(len(data)), str(i), str(len(data)), str(i)))
 
 # ================= ROOM ======================
 # Get ROOM
@@ -92,9 +95,10 @@ def get_screening_by_room(request):
         try:
             update_date_range(limit=7)
         except:
-            return JsonResponse({
-                'message': 'Fail when update date range'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            pass
+            # return JsonResponse({
+            #     'message': 'Fail when update date range'
+            # }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get all Screening in room
         try:
