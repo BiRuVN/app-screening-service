@@ -127,6 +127,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = False
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'x-access-token',
+    'Access-Control-Allow-Origin',
 ]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
