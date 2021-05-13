@@ -61,7 +61,7 @@ def update_date_range(limit=6):
 def get_room(request):
     if request.method == 'GET':
         try:
-            auth = check_token(request.headers['x-access-token'])
+            auth = check_token(request.headers['authorization'])
         except:
             return JsonResponse({
                 'message': 'Mising auth token'
@@ -85,7 +85,7 @@ def get_room(request):
 def get_date(request):
     if request.method == 'GET':
         # try:
-        #     auth = check_token(request.headers['x-access-token'])
+        #     auth = check_token(request.headers['authorization'])
         # except:
         #     return JsonResponse({
         #         'message': 'Mising auth token'
@@ -115,7 +115,7 @@ def get_date(request):
 def get_screening_by_room(request):
     if request.method == 'GET':
         try:
-            auth = check_token(request.headers['x-access-token'])
+            auth = check_token(request.headers['authorization'])
         except:
             return JsonResponse({
                 'message': 'Mising auth token'
@@ -135,7 +135,7 @@ def get_screening_by_room(request):
         room_id = request.GET.get('room_id', None)
 
         return JsonResponse({
-                'message': request.headers['x-access-token']
+                'message': request.headers['authorization']
             }, status=status.HTTP_400_BAD_REQUEST)
 
         if room_id is None:
@@ -183,7 +183,7 @@ def get_screening_by_room(request):
 def get_screening_by_date(request):
     if request.method == 'GET':
         # try:
-        #     auth = check_token(request.headers['x-access-token'])
+        #     auth = check_token(request.headers['authorization'])
         # except:
         #     return JsonResponse({
         #         'message': 'Mising auth token'
@@ -244,7 +244,7 @@ def get_screening_by_date(request):
 def add_screening(request):
     if request.method == 'POST':
         try:
-            auth = check_token(request.headers['x-access-token'])
+            auth = check_token(request.headers['authorization'])
         except:
             return JsonResponse({
                 'message': 'Mising auth token'
@@ -322,7 +322,7 @@ def add_screening(request):
 def del_screening(request):
     if request.method == 'POST':
         try:
-            auth = check_token(request.headers['x-access-token'])
+            auth = check_token(request.headers['authorization'])
         except:
             return JsonResponse({
                 'message': 'Mising auth token'
@@ -355,7 +355,7 @@ def del_screening(request):
 def update_screening(request):
     if request.method == 'POST':
         try:
-            auth = check_token(request.headers['x-access-token'])
+            auth = check_token(request.headers['authorization'])
         except:
             return JsonResponse({
                 'message': 'Mising auth token'
