@@ -61,22 +61,22 @@ def update_date_range(limit=6):
 # Get ROOM
 def get_room(request):
     if request.method == 'GET':
-        try:
-            auth = check_token(request.headers['authorization'])
-        except:
-            return JsonResponse({
-                'message': 'Mising auth token'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     auth = check_token(request.headers['authorization'])
+        # except:
+        #     return JsonResponse({
+        #         'message': 'Mising auth token'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
 
-        if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
-            return JsonResponse({
-                'message': 'Permission denied'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
+        #     return JsonResponse({
+        #         'message': 'Permission denied'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
         
-        if not auth['READ']:
-            return JsonResponse({
-                'message': 'READ permission denied'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # if not auth['READ']:
+        #     return JsonResponse({
+        #         'message': 'READ permission denied'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
 
         data = get_all(['room_id', 'room_name'], "SELECT _id, name FROM screening_app_room")
         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
@@ -134,10 +134,6 @@ def get_screening_by_room(request):
 
         # Get room_id
         room_id = request.GET.get('room_id', None)
-
-        return JsonResponse({
-                'message': request.headers['authorization']
-            }, status=status.HTTP_400_BAD_REQUEST)
 
         if room_id is None:
             return JsonResponse({
