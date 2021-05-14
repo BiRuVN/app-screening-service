@@ -11,6 +11,7 @@ import datetime
 import base64
 
 def check_token(token):
+    token += "=" * ((4 - len(token) % 4) % 4)
     payload = base64.b64decode(token)
     x = ''.join(map(chr, list(payload)))
     
