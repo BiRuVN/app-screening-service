@@ -86,7 +86,7 @@ DATABASES = {
         'NAME': 'daunfa16q1o8o9',
         'USER': 'ldribmxvxayffh',
         'PASSWORD': '16a3463ea9dcde0721192d9dca747352b48c9d936590057264617a545ab720f9',
-        'HOST': 'ec2-54-160-96-70.compute-1.amazonaws.com',
+        'HOST': 'ec2-34-232-191-133.compute-1.amazonaws.com',
         'PORT': '5432'
     }
 }
