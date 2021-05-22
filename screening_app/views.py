@@ -11,9 +11,11 @@ import datetime
 import base64
 
 def check_token(token):
-    token += "=" * ((4 - len(token) % 4) % 4)
-    payload = base64.b64decode(token)
-    x = ''.join(map(chr, list(payload)))
+    token = token.split(' ')[1]
+    payload = token.split('.')[1]
+    payload += "=" * ((4 - len(payload) % 4) % 4)
+    payload_byte = base64.b64decode(payload)
+    x = ''.join(map(chr, list(payload_byte)))
     
     auth = {}
     for role in ['ROLE_EMPLOYEE', 'ROLE_GUEST', 'ROLE_ADMIN']:
