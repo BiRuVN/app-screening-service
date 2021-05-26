@@ -114,6 +114,33 @@ def get_date(request):
         return JsonResponse({'data' : data}, status=status.HTTP_200_OK)
 
 # ================== SCREENING ========================
+# Get SCREENING by ID
+def get_screening_by_id(request):
+    if request.method == 'GET':
+        sc_id = request.GET.get('screening_id', None)
+
+        if sc_id is None:
+            return JsonResponse({
+                'message': 'Missing screening_id to get screening'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            sc = Screening.objects.get(_id=sc_id)
+        except:
+            return JsonResponse({
+                'message': 'No existed screening id'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        return JsonResponse({
+                'data': {
+                    'screening_id': sc._id,
+                    'date': sc.date_id.date,
+                    'timeslot': sc.timeslot_id.started_at,
+                    'room': sc.room_id.name
+                }
+            }, status=status.HTTP_200_OK)
+
+
 # Get SCREENING by ROOM
 def get_screening_by_room(request):
     if request.method == 'GET':

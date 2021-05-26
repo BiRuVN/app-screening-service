@@ -6,6 +6,7 @@ urlpatterns = [
     # path('', ),
     path('date', get_date),
     path('room', get_room),
+    path('screening/by-id', get_screening_by_id),
     path('screening/by-room', get_screening_by_room),
     path('screening/by-date', get_screening_by_date),
     path('screening/new', csrf_exempt(add_screening)),
