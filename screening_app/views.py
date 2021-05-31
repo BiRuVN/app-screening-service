@@ -22,7 +22,9 @@ def check_token(token):
         if role in x:
             auth['ROLE'] = role
             break
-    for action in ['CREATE', 'READ', 'UPDATE', 'DELETE']:
+    for action in ['SCREENING.CREATE', 'SCREENING.READ', 'SCREENING.UPDATE', 'SCREENING.DELETE', 
+                    'MOVIE.READ', 'MOVIE.UPDATE', 'MOVIE.CREATE', 
+                    'GENRE.CREATE', 'GENRE.READ', 'GENRE.UPDATE']:
         auth[action] = True if action in x else False
 
     return auth
@@ -144,22 +146,22 @@ def get_screening_by_id(request):
 # Get SCREENING by ROOM
 def get_screening_by_room(request):
     if request.method == 'GET':
-        # try:
-        #     auth = check_token(request.headers['authorization'])
-        # except:
-        #     return JsonResponse({
-        #         'message': 'Mising auth token'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            auth = check_token(request.headers['authorization'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
-        #     return JsonResponse({
-        #         'message': 'Permission denied'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
         
-        # if not auth['READ']:
-        #     return JsonResponse({
-        #         'message': 'READ permission denied'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        if not auth['SCREENING.READ']:
+            return JsonResponse({
+                'message': 'READ permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get room_id
         room_id = request.GET.get('room_id', None)
@@ -269,22 +271,22 @@ def get_screening_by_date(request):
 # Create SCREENING
 def add_screening(request):
     if request.method == 'POST':
-        # try:
-        #     auth = check_token(request.headers['authorization'])
-        # except:
-        #     return JsonResponse({
-        #         'message': 'Mising auth token'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            auth = check_token(request.headers['authorization'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
-        #     return JsonResponse({
-        #         'message': 'Permission denied'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not auth['CREATE']:
-        #     return JsonResponse({
-        #         'message': 'CREATE permission denied'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        if not auth['SCREENING.CREATE']:
+            return JsonResponse({
+                'message': 'CREATE permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         body = json.loads(request.body)
         
@@ -347,22 +349,22 @@ def add_screening(request):
 # Delete SCREENING
 def del_screening(request):
     if request.method == 'POST':
-        # try:
-        #     auth = check_token(request.headers['authorization'])
-        # except:
-        #     return JsonResponse({
-        #         'message': 'Mising auth token'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            auth = check_token(request.headers['authorization'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
-        #     return JsonResponse({
-        #         'message': 'Permission denied'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not auth['DELETE']:
-        #     return JsonResponse({
-        #         'message': 'DELETE permission denied'
-            # }, status=status.HTTP_400_BAD_REQUEST)
+        if not auth['SCREENING.DELETE']:
+            return JsonResponse({
+                'message': 'DELETE permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         body = json.loads(request.body)
         _id = body['id']
@@ -380,22 +382,22 @@ def del_screening(request):
 # Update SCREENING
 def update_screening(request):
     if request.method == 'POST':
-        # try:
-        #     auth = check_token(request.headers['authorization'])
-        # except:
-        #     return JsonResponse({
-        #         'message': 'Mising auth token'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            auth = check_token(request.headers['authorization'])
+        except:
+            return JsonResponse({
+                'message': 'Mising auth token'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
-        #     return JsonResponse({
-        #         'message': 'Permission denied'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        if not (auth['ROLE'] == 'ROLE_EMPLOYEE' or auth['ROLE'] == 'ROLE_ADMIN'):
+            return JsonResponse({
+                'message': 'Permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not auth['UPDATE']:
-        #     return JsonResponse({
-        #         'message': 'UPDATE permission denied'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        if not auth['SCREENING.UPDATE']:
+            return JsonResponse({
+                'message': 'UPDATE permission denied'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         body = json.loads(request.body)
         _id = body['id']
