@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'ScreeningService.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dekvnlvma3lkek',
-        'USER': 'wbfrrxggmsqfiz',
-        'PASSWORD': '46b4cf811610448cceadfa0c21b007418187bf847dc84b393f17173f15a20501',
-        'HOST': 'ec2-34-232-191-133.compute-1.amazonaws.com',
+        'NAME': 'donh9bg56h77p',
+        'USER': 'ofhkwebhzrnpmd',
+        'PASSWORD': '9a4efa65cb38c42009d7c729573dde953b70f4468be7c2752ee92ea49966779f',
+        'HOST': 'ec2-3-214-136-47.compute-1.amazonaws.com',
         'PORT': '5432'
     }
 }
