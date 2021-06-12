@@ -13,7 +13,7 @@ class Room(models.Model):
 class Timeslot(models.Model):
     _id = models.AutoField(primary_key=True, null=False)
     started_at = models.TimeField(unique=True, null=False)
-    price = models.IntegerField(default=45000)
+    price = models.FloatField(default=2.0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
