@@ -106,7 +106,7 @@ def get_date(request):
         #         'message': 'READ permission denied'
         #     }, status=status.HTTP_400_BAD_REQUEST)
         
-        update_date_range()
+        update_date_range(7)
 
         fields = ['date', 'date_id', 'day']
         statement = "SELECT date, _id, day FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT 6"
