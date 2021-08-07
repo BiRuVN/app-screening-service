@@ -44,7 +44,7 @@ def get_all(fields, statement):
         data.append(dict(zip(fields, record)))
     return data
 
-def update_date_range(limit=6):
+def update_date_range(limit=7):
     fields = ['date']
     statement = "SELECT date FROM screening_app_date WHERE DATE(date) >= DATE(NOW()) ORDER BY date LIMIT {}".format(str(limit))
 
