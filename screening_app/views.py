@@ -54,7 +54,7 @@ def update_date_range(limit=7):
     missing_date = limit - len(data)
     print(missing_date)
     if missing_date > 0:
-        for i in range(1, missing_date+1):
+        for i in range(0, missing_date):
             # print()
             Date.objects.create(
                 date=(datetime.datetime.today() + datetime.timedelta(days=len(data)+i)).strftime('%Y-%m-%d'),
