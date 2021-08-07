@@ -187,7 +187,7 @@ def get_screening_by_room(request):
                             JOIN screening_app_date ON screening_app_screening.date_id_id = screening_app_date._id) \
                                 JOIN screening_app_timeslot ON screening_app_screening.timeslot_id_id = screening_app_timeslot._id) \
                             WHERE room_id_id = {} \
-                                    AND DATE(date) >= DATE(NOW()) AND DATE(date) <= DATE(NOW())+6".format(str(room_id))
+                                    AND DATE(date) >= DATE(NOW()) AND DATE(date) <= DATE(NOW())+7".format(str(room_id))
             data_screening = get_all(screening_fields, statement)
         except:
             return JsonResponse({
@@ -327,7 +327,9 @@ def add_screening(request):
         except:
             return JsonResponse({
                 'message': 'Duplicate unique fields'
-            }, status=status.HTTP_400_BAD_REQUEST)        
+            }, status=status.HTTP_400_BAD_REQUEST)       
+
+         
 
         return JsonResponse({
             'data': {
